@@ -1,3 +1,5 @@
+/*eslint-disable */
+
 // modules
 var _ = require('lodash');
 var beautifyHtml = require('js-beautify').html;
@@ -439,7 +441,23 @@ var parseLayoutIncludes = function () {
 /**
  * Parse data files and save JSON
  */
-var parseData = function () {
+var parseData = function (lang) {
+
+	lang = lang || 'en';
+
+	var setLang = function(value, key) {
+		if (_.isObject(value) && (value.en || value[lang])) {
+			if (value[lang]) {
+				// console.log(prop, typeof prop);
+				this[key] = value[lang];
+				// console.log(prop, typeof prop);
+			} else {
+				this[key] = value.en;
+			}
+		} else if (_.isArray(value) || _.isObject(value)) {
+			_.forEach(value, setLang, value);
+		}
+	}
 
 	// reset
 	assembly.data = {};
@@ -451,11 +469,11 @@ var parseData = function () {
 	files.forEach(function (file) {
 		var id = getName(file);
 		var content = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
+		setLang(content);
 		assembly.data[id] = content;
 	});
 
 };
-
 
 /**
  * Get meta data for views
@@ -561,6 +579,13 @@ var registerHelpers = function () {
 
 	});
 
+	Handlebars.registerHelper('product', function(key, options){
+		var product = _.find(assembly.data.products, function(product){
+			return product.product_number == options.data.root.product_number;
+		}) || assembly.data.products[0];
+		return product[key];
+	});
+
 };
 
 
@@ -638,7 +663,162 @@ var assemble = function () {
 			fs.writeFileSync(copyPath, template(context));
 		}
 	});
+};
 
+var flows = [
+	{
+		name: '3a',
+		pages: [
+			{
+				view: 'home'
+			},
+			{
+				view: 'product-listing',
+				hash: {
+					product_listing: {
+					  "banner": {
+					    "layout_image_logo_text": true,
+					    "theme": "dark",
+					    "aria_label": "Main Banner",
+					    "text": "Friends are great!",
+					    "logo": {
+					      "desktop": "/assets/toolkit/images/banners/starwars--logo--desktop.png",
+					      "alt": "STAR WARS!"
+					    },
+					    "image": {
+					      "tablet": "/assets/toolkit/images/banners/starwars--tablet.png",
+					      "desktop": "/assets/toolkit/images/banners/starwars--desktop.png",
+					      "mobile": "/assets/toolkit/images/banners/starwars--mobile.jpg",
+					      "alt": "STAR WARS!"
+					    }
+					  },
+					  "breadcrumbs": [
+					    {
+					      "text": {
+					        "en": "Home",
+					        "de": "Haus"
+					      },
+					      "url": "#"
+					    },
+					    {
+					      "text": "Sets",
+					      "url": "#"
+					    },
+					    {
+					      "text": "Themes",
+					      "url": "#"
+					    },
+					    {
+					      "text": "Star Wars",
+					      "url": "#"
+					    }
+					  ],
+					  "products": [
+					    {
+					      "title": "LEGO Legends of Chima Scorpion Sword Shield",
+					      "product_number": "85105",
+					      "availability": "Available Now",
+					      "is_available": true,
+					      "price": "$79.99",
+					      "tag": {
+					        "text": "NEW!",
+					        "slug": "new"
+					      },
+					      "discounted_price": "$99.99",
+					      "image": "/assets/toolkit/images/products/fpo-85105.png",
+					      "cta": "ADD TO BAG",
+					      "rating": "87%",
+					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
+					    },
+					    {
+					      "title": "MetalBeard's Sea Cow",
+					      "product_number": "70810",
+					      "availability": "Available Now",
+					      "is_available": true,
+					      "price": "$249.99",
+					      "discounted_price": "",
+					      "tag": {
+					        "text": "HARD TO FIND",
+					        "slug": "hard-to-find"
+					      },
+					      "image": "/assets/toolkit/images/products/fpo-70810.png",
+					      "cta": "ADD TO BAG",
+					      "rating": "94%",
+					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
+					    },
+					    {
+					      "title": "Batman: The Joker SteamRoller",
+					      "product_number": "76015",
+					      "availability": "Available Now",
+					      "is_available": true,
+					      "price": "$49.99",
+					      "discounted_price": null,
+					      "image": "/assets/toolkit/images/products/fpo-76015.png",
+					      "cta": "ADD TO BAG",
+					      "rating": "21%",
+					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
+					    },
+					    {
+					      "title": "United Nations Headquarters",
+					      "product_number": "21018",
+					      "availability": "Retired Product",
+					      "is_available": false,
+					      "price": "$49.99",
+					      "tag": {
+					        "text": "RETIRED",
+					        "slug": "retired"
+					      },
+					      "discounted_price": null,
+					      "image": "/assets/toolkit/images/products/fpo-21018.png",
+					      "cta": "ADD TO BAG",
+					      "rating": "11%",
+					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
+					    }
+					  ]
+					}
+				}
+			},
+			{
+				view: 'pdp'
+			},
+		]
+	}
+]
+
+var assemblePrototypes = function () {
+
+	// create output directory if it doesn't already exist
+	var dir = options.dest + '/flows';
+	mkdirp.sync(dir);
+
+	options.langs.forEach(function(lang){
+		langdir = dir + '/' + lang;
+
+		parseData(lang);
+
+		mkdirp.sync(langdir);
+
+		flows.forEach(function(flow){
+			flowdir = langdir + '/' + flow.name;
+			mkdirp.sync(flowdir);
+
+			flow.pages.forEach(function(page){
+				var sourceFile = 'src/views/pages/' + page.view + '.html';
+				var view = fs.readFileSync(sourceFile, 'utf-8');
+
+				// get page gray matter and content
+				var pageMatter = getMatter(sourceFile),
+					pageContent = pageMatter.content;
+
+				// template using Handlebars
+				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
+					context = buildContext(pageMatter.data, page.hash),
+					template = Handlebars.compile(source);
+
+				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(context));
+			});
+		});
+	});
 };
 
 
@@ -655,6 +835,7 @@ module.exports = function (options) {
 
 		// assemble
 		assemble();
+		assemblePrototypes();
 
 	} catch(e) {
 		handleError(e);
