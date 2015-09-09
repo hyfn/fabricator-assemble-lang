@@ -448,9 +448,7 @@ var parseData = function (lang) {
 	var setLang = function(value, key) {
 		if (_.isObject(value) && (value.en || value[lang])) {
 			if (value[lang]) {
-				// console.log(prop, typeof prop);
 				this[key] = value[lang];
-				// console.log(prop, typeof prop);
 			} else {
 				this[key] = value.en;
 			}
@@ -472,7 +470,6 @@ var parseData = function (lang) {
 		setLang(content);
 		assembly.data[id] = content;
 	});
-
 };
 
 /**
@@ -665,126 +662,6 @@ var assemble = function () {
 	});
 };
 
-var flows = [
-	{
-		name: '3a',
-		pages: [
-			{
-				view: 'home'
-			},
-			{
-				view: 'product-listing',
-				hash: {
-					product_listing: {
-					  "banner": {
-					    "layout_image_logo_text": true,
-					    "theme": "dark",
-					    "aria_label": "Main Banner",
-					    "text": "Friends are great!",
-					    "logo": {
-					      "desktop": "/assets/toolkit/images/banners/starwars--logo--desktop.png",
-					      "alt": "STAR WARS!"
-					    },
-					    "image": {
-					      "tablet": "/assets/toolkit/images/banners/starwars--tablet.png",
-					      "desktop": "/assets/toolkit/images/banners/starwars--desktop.png",
-					      "mobile": "/assets/toolkit/images/banners/starwars--mobile.jpg",
-					      "alt": "STAR WARS!"
-					    }
-					  },
-					  "breadcrumbs": [
-					    {
-					      "text": {
-					        "en": "Home",
-					        "de": "Haus"
-					      },
-					      "url": "#"
-					    },
-					    {
-					      "text": "Sets",
-					      "url": "#"
-					    },
-					    {
-					      "text": "Themes",
-					      "url": "#"
-					    },
-					    {
-					      "text": "Star Wars",
-					      "url": "#"
-					    }
-					  ],
-					  "products": [
-					    {
-					      "title": "LEGO Legends of Chima Scorpion Sword Shield",
-					      "product_number": "85105",
-					      "availability": "Available Now",
-					      "is_available": true,
-					      "price": "$79.99",
-					      "tag": {
-					        "text": "NEW!",
-					        "slug": "new"
-					      },
-					      "discounted_price": "$99.99",
-					      "image": "/assets/toolkit/images/products/fpo-85105.png",
-					      "cta": "ADD TO BAG",
-					      "rating": "87%",
-					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
-					    },
-					    {
-					      "title": "MetalBeard's Sea Cow",
-					      "product_number": "70810",
-					      "availability": "Available Now",
-					      "is_available": true,
-					      "price": "$249.99",
-					      "discounted_price": "",
-					      "tag": {
-					        "text": "HARD TO FIND",
-					        "slug": "hard-to-find"
-					      },
-					      "image": "/assets/toolkit/images/products/fpo-70810.png",
-					      "cta": "ADD TO BAG",
-					      "rating": "94%",
-					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
-					    },
-					    {
-					      "title": "Batman: The Joker SteamRoller",
-					      "product_number": "76015",
-					      "availability": "Available Now",
-					      "is_available": true,
-					      "price": "$49.99",
-					      "discounted_price": null,
-					      "image": "/assets/toolkit/images/products/fpo-76015.png",
-					      "cta": "ADD TO BAG",
-					      "rating": "21%",
-					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
-					    },
-					    {
-					      "title": "United Nations Headquarters",
-					      "product_number": "21018",
-					      "availability": "Retired Product",
-					      "is_available": false,
-					      "price": "$49.99",
-					      "tag": {
-					        "text": "RETIRED",
-					        "slug": "retired"
-					      },
-					      "discounted_price": null,
-					      "image": "/assets/toolkit/images/products/fpo-21018.png",
-					      "cta": "ADD TO BAG",
-					      "rating": "11%",
-					      "description": "Mauris et dui ultricies diam tristique volutpat. Duis eget diam id urna pulvinar lacinia et sed arcu. Sed id ex nec augue tincidunt sagittis. Nunc libero eros, dapibus in quam vel, eleifend cursus dui. Nullam vel libero eu nibh dignissim malesuada at vel ex."
-					    }
-					  ]
-					}
-				}
-			},
-			{
-				view: 'pdp'
-			},
-		]
-	}
-]
-
 var assemblePrototypes = function () {
 
 	// create output directory if it doesn't already exist
@@ -797,8 +674,11 @@ var assemblePrototypes = function () {
 		parseData(lang);
 
 		mkdirp.sync(langdir);
+		var flowFiles = fs.readdirSync('src/data/flows', { nodir: true });
 
-		flows.forEach(function(flow){
+		flowFiles.forEach(function(flowFile){
+
+			var flow = assembly.data[flowFile.split('.')[0]];
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
 
