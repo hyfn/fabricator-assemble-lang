@@ -692,10 +692,12 @@ var assemblePrototypes = function () {
 
 				// template using Handlebars
 				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
-					context = buildContext(pageMatter.data, page.hash),
+					context = buildContext(pageMatter.data),
+					contextClone = _.cloneDeep(context);
+					_.merge(contextClone, page.hash);
 					template = Handlebars.compile(source);
 
-				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(context));
+				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(contextClone));
 			});
 		});
 	});
