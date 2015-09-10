@@ -254,9 +254,13 @@ var toTitleCase = function(str) {
  * Insert the page into a layout
  * @param  {String} page
  * @param  {String} layout
+ * @param  {Object} options
  * @return {String}
  */
-var wrapPage = function (page, layout) {
+var wrapPage = function (page, layout, options) {
+	if (options && options.layoutClass) {
+		var layout = layout.replace('<html>','<html class="' + options.layoutClass + '">');
+	}
 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
 };
 
@@ -682,16 +686,23 @@ var assemblePrototypes = function () {
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
 
+			if (options.logging) {
+				console.log('FLOW: ', flow.name);
+			}
+
 			flow.pages.forEach(function(page){
 				var sourceFile = 'src/views/pages/' + page.view + '.html';
 				var view = fs.readFileSync(sourceFile, 'utf-8');
+				if (options.logging) {
+					console.log('PROTOTYPE VIEW: ', page.view);
+				}
 
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
 					pageContent = pageMatter.content;
 
 				// template using Handlebars
-				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
+				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout], {layoutClass: 'prototype-layout'}),
 					context = buildContext(pageMatter.data),
 					contextClone = _.cloneDeep(context);
 					_.merge(contextClone, page.hash);
