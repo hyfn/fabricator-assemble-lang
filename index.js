@@ -671,6 +671,16 @@ var assemblePrototypes = function () {
 	// create output directory if it doesn't already exist
 	var dir = options.dest + '/flows';
 	mkdirp.sync(dir);
+	var flowFiles = fs.readdirSync('src/data/flows', { nodir: true });
+
+	if (options.logging) {
+		var names = [];
+		_.each(flowFiles, function(file) {
+			names.push(file.split('.')[0].replace('_',''));
+		});
+		console.log('CREATING PROTOTYPES:', names);
+		console.log('LANGUAGES:', options.langs);
+	}
 
 	options.langs.forEach(function(lang){
 		langdir = dir + '/' + lang;
@@ -678,25 +688,15 @@ var assemblePrototypes = function () {
 		parseData(lang);
 
 		mkdirp.sync(langdir);
-		var flowFiles = fs.readdirSync('src/data/flows', { nodir: true });
-
 		flowFiles.forEach(function(flowFile){
 
 			var flow = assembly.data[flowFile.split('.')[0]];
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
 
-			if (options.logging) {
-				console.log('FLOW: ', flow.name);
-			}
-
 			flow.pages.forEach(function(page){
 				var sourceFile = 'src/views/pages/' + page.view + '.html';
 				var view = fs.readFileSync(sourceFile, 'utf-8');
-				if (options.logging) {
-					console.log('PROTOTYPE VIEW: ', page.view);
-				}
-
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
 					pageContent = pageMatter.content;
