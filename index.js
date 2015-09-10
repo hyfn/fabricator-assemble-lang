@@ -702,13 +702,12 @@ var assemblePrototypes = function () {
 					pageContent = pageMatter.content;
 
 				// template using Handlebars
-				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout], {layoutClass: 'prototype-layout'}),
-					context = buildContext(pageMatter.data),
-					contextClone = _.cloneDeep(context);
-					_.merge(contextClone, page.hash);
+
+				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
+					context = buildContext(pageMatter.data, page.hash),
 					template = Handlebars.compile(source);
 
-				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(contextClone));
+				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(context));
 			});
 		});
 	});
