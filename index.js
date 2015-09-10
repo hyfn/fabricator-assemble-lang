@@ -20,137 +20,137 @@ var yaml = require('js-yaml');
  * Default options
  * @type {Object}
  */
-var defaults = {
+ var defaults = {
 	/**
 	 * ID (filename) of default layout
 	 * @type {String}
 	 */
-	layout: 'default',
+	 layout: 'default',
 
 	/**
 	 * Layout templates
 	 * @type {(String|Array)}
 	 */
-	layouts: ['src/views/layouts/*'],
+	 layouts: ['src/views/layouts/*'],
 
 	/**
 	 * Layout includes (partials)
 	 * @type {String}
 	 */
-	layoutIncludes: ['src/views/layouts/includes/*'],
+	 layoutIncludes: ['src/views/layouts/includes/*'],
 
 	/**
 	 * Pages to be inserted into a layout
 	 * @type {(String|Array)}
 	 */
-	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
+	 views: ['src/views/**/*', '!src/views/+(layouts)/**'],
 
 	/**
 	 * Materials - snippets turned into partials
 	 * @type {(String|Array)}
 	 */
-	materials: ['src/materials/**/*'],
+	 materials: ['src/materials/**/*'],
 
 	/**
 	 * JSON or YAML data models that are piped into views
 	 * @type {(String|Array)}
 	 */
-	data: ['src/data/**/*.{json,yml}'],
+	 data: ['src/data/**/*.{json,yml}'],
 
 	/**
 	 * Markdown files containing toolkit-wide documentation
 	 * @type {(String|Array)}
 	 */
-	docs: ['src/docs/**/*.md'],
+	 docs: ['src/docs/**/*.md'],
 
 	/**
 	 * Keywords used to access items in views
 	 * @type {Object}
 	 */
-	keys: {
-		materials: 'materials',
-		views: 'views',
-		docs: 'docs'
-	},
+	 keys: {
+	 	materials: 'materials',
+	 	views: 'views',
+	 	docs: 'docs'
+	 },
 
 	/**
 	 * Location to write files
 	 * @type {String}
 	 */
-	dest: 'dist',
+	 dest: 'dist',
 
 	/**
 	 * beautifier options
 	 * @type {Object}
 	 */
-	beautifier: {
-		indent_size: 1,
-		indent_char: '	',
-		indent_with_tabs: true
-	},
+	 beautifier: {
+	 	indent_size: 1,
+	 	indent_char: '	',
+	 	indent_with_tabs: true
+	 },
 
 	/**
 	 * Function to call when an error occurs
 	 * @type {Function}
 	 */
-	onError: null,
+	 onError: null,
 
 	/**
 	 * Whether or not to log errors to console
 	 * @type {Boolean}
 	 */
-	logErrors: false
-};
+	 logErrors: false
+	};
 
 
 /**
  * Merged defaults and user options
  * @type {Object}
  */
-var options = {};
+ var options = {};
 
 
 /**
  * Assembly data storage
  * @type {Object}
  */
-var assembly = {
+ var assembly = {
 	/**
 	 * Contents of each layout file
 	 * @type {Object}
 	 */
-	layouts: {},
+	 layouts: {},
 
 	/**
 	 * Parsed JSON data from each data file
 	 * @type {Object}
 	 */
-	data: {},
+	 data: {},
 
 	/**
 	 * Meta data for materials, grouped by "collection" (sub-directory); contains name and sub-items
 	 * @type {Object}
 	 */
-	materials: {},
+	 materials: {},
 
 	/**
 	 * Each material's front-matter data
 	 * @type {Object}
 	 */
-	materialData: {},
+	 materialData: {},
 
 	/**
 	 * Meta data for user-created views (views in views/{subdir})
 	 * @type {Object}
 	 */
-	views: {},
+	 views: {},
 
 	/**
 	 * Meta data (name, sub-items) for doc file
 	 * @type {Object}
 	 */
-	docs: {}
-};
+	 docs: {}
+	};
 
 
 /**
@@ -161,10 +161,10 @@ var assembly = {
  * './src/materials/structures/02-bar.html' -> 'bar'
  * @return {String}
  */
-var getName = function (filePath, preserveNumbers) {
-	var name = path.basename(filePath, path.extname(filePath));
-	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
-};
+ var getName = function (filePath, preserveNumbers) {
+ 	var name = path.basename(filePath, path.extname(filePath));
+ 	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
+ };
 
 
 /**
@@ -172,18 +172,18 @@ var getName = function (filePath, preserveNumbers) {
  * @param  {String} file Path to file
  * @return {Object}
  */
-var getMatter = function (file) {
-	return matter.read(file, {
-		parser: require('js-yaml').safeLoad
-	});
-};
+ var getMatter = function (file) {
+ 	return matter.read(file, {
+ 		parser: require('js-yaml').safeLoad
+ 	});
+ };
 
 
 /**
  * Handle errors
  * @param  {Object} e Error object
  */
-var handleError = function (e) {
+ var handleError = function (e) {
 
 	// default to exiting process on error
 	var exit = true;
@@ -221,7 +221,7 @@ var handleError = function (e) {
  * @param  {Object} data
  * @return {Object}
  */
-var buildContext = function (data, hash) {
+ var buildContext = function (data, hash) {
 
 	// set keys to whatever is defined
 	var materials = {};
@@ -243,11 +243,11 @@ var buildContext = function (data, hash) {
  * @param  {String} str
  * @return {String}
  */
-var toTitleCase = function(str) {
-	return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
-		return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
-	});
-};
+ var toTitleCase = function(str) {
+ 	return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
+ 		return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+ 	});
+ };
 
 
 /**
@@ -257,18 +257,18 @@ var toTitleCase = function(str) {
  * @param  {Object} options
  * @return {String}
  */
-var wrapPage = function (page, layout, options) {
-	if (options && options.layoutClass) {
-		var layout = layout.replace('<html>','<html class="' + options.layoutClass + '">');
-	}
-	return layout.replace(/\{\%\s?body\s?\%\}/, page);
-};
+ var wrapPage = function (page, layout, options) {
+ 	if (options && options.layoutClass) {
+ 		var layout = layout.replace('<html>','<html class="' + options.layoutClass + '">');
+ 	}
+ 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
+ };
 
 
 /**
  * Parse each material - collect data, create partial
  */
-var parseMaterials = function () {
+ var parseMaterials = function () {
 
 	// reset object
 	assembly.materials = {};
@@ -379,7 +379,7 @@ var parseMaterials = function () {
 /**
  * Parse markdown files as "docs"
  */
-var parseDocs = function () {
+ var parseDocs = function () {
 
 	// reset
 	assembly.docs = {};
@@ -406,7 +406,7 @@ var parseDocs = function () {
 /**
  * Parse layout files
  */
-var parseLayouts = function () {
+ var parseLayouts = function () {
 
 	// reset
 	assembly.layouts = {};
@@ -427,7 +427,7 @@ var parseLayouts = function () {
 /**
  * Register layout includes has Handlebars partials
  */
-var parseLayoutIncludes = function () {
+ var parseLayoutIncludes = function () {
 
 	// get files
 	var files = globby.sync(options.layoutIncludes, { nodir: true });
@@ -445,21 +445,21 @@ var parseLayoutIncludes = function () {
 /**
  * Parse data files and save JSON
  */
-var parseData = function (lang) {
+ var parseData = function (lang) {
 
-	lang = lang || 'en';
+ 	lang = lang || 'en';
 
-	var setLang = function(value, key) {
-		if (_.isObject(value) && (value.en || value[lang])) {
-			if (value[lang]) {
-				this[key] = value[lang];
-			} else {
-				this[key] = value.en;
-			}
-		} else if (_.isArray(value) || _.isObject(value)) {
-			_.forEach(value, setLang, value);
-		}
-	}
+ 	var setLang = function(value, key) {
+ 		if (_.isObject(value) && (value.en || value[lang])) {
+ 			if (value[lang]) {
+ 				this[key] = value[lang];
+ 			} else {
+ 				this[key] = value.en;
+ 			}
+ 		} else if (_.isArray(value) || _.isObject(value)) {
+ 			_.forEach(value, setLang, value);
+ 		}
+ 	}
 
 	// reset
 	assembly.data = {};
@@ -479,7 +479,7 @@ var parseData = function (lang) {
 /**
  * Get meta data for views
  */
-var parseViews = function () {
+ var parseViews = function () {
 
 	// reset
 	assembly.views = {};
@@ -493,10 +493,10 @@ var parseViews = function () {
 
 		// determine if view is part of a collection (subdir)
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-			collection = (dirname !== options.keys.views) ? dirname : '';
+		collection = (dirname !== options.keys.views) ? dirname : '';
 
 		var fileMatter = getMatter(file),
-			fileData = _.omit(fileMatter.data, 'notes');
+		fileData = _.omit(fileMatter.data, 'notes');
 
 		// if this file is part of a collection
 		if (collection) {
@@ -523,7 +523,7 @@ var parseViews = function () {
 /**
  * Register new Handlebars helpers
  */
-var registerHelpers = function () {
+ var registerHelpers = function () {
 
 	// get helper files
 	var resolveHelper = path.join.bind(null, __dirname, 'helpers');
@@ -558,7 +558,7 @@ var registerHelpers = function () {
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, opts) {
+	 Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, opts) {
 
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
@@ -566,7 +566,7 @@ var registerHelpers = function () {
 
 		// attempt to find pre-compiled partial
 		var template = Handlebars.partials[key],
-			fn;
+		fn;
 
 		// compile partial if not already compiled
 		if (!_.isFunction(template)) {
@@ -580,21 +580,21 @@ var registerHelpers = function () {
 
 	});
 
-	Handlebars.registerHelper('product', function(key, options){
-		var product = _.find(assembly.data.products, function(product){
-			return product.product_number == options.data.root.product_number;
-		}) || assembly.data.products[0];
-		return product[key];
-	});
+	 Handlebars.registerHelper('product', function(key, options){
+	 	var product = _.find(assembly.data.products, function(product){
+	 		return product.product_number == options.data.root.product_number;
+	 	}) || assembly.data.products[0];
+	 	return product[key];
+	 });
 
-};
+	};
 
 
 /**
  * Setup the assembly
  * @param  {Objet} options  User options
  */
-var setup = function (userOptions) {
+ var setup = function (userOptions) {
 
 	// merge user options with defaults
 	options = _.merge({}, defaults, userOptions);
@@ -614,7 +614,7 @@ var setup = function (userOptions) {
 /**
  * Assemble views using materials, data, and docs
  */
-var assemble = function () {
+ var assemble = function () {
 
 	// get files
 	var files = globby.sync(options.views, { nodir: true });
@@ -629,12 +629,12 @@ var assemble = function () {
 
 		// build filePath
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-			collection = (dirname !== options.keys.views) ? dirname : '',
-			filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
+		collection = (dirname !== options.keys.views) ? dirname : '',
+		filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
 
 		// get page gray matter and content
 		var pageMatter = getMatter(file),
-			pageContent = pageMatter.content;
+		pageContent = pageMatter.content;
 
 		if (collection) {
 			pageMatter.data.baseurl = '..';
@@ -642,8 +642,8 @@ var assemble = function () {
 
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
-			context = buildContext(pageMatter.data),
-			template = Handlebars.compile(source);
+		context = buildContext(pageMatter.data),
+		template = Handlebars.compile(source);
 
 		// redefine file path if dest front-matter variable is defined
 		if (pageMatter.data.dest) {
@@ -694,18 +694,25 @@ var assemblePrototypes = function () {
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
 
+			if (options.logging) {
+				console.log('FLOW: ', flow.name);
+			}
+
 			flow.pages.forEach(function(page){
 				var sourceFile = 'src/views/pages/' + page.view + '.html';
 				var view = fs.readFileSync(sourceFile, 'utf-8');
+				if (options.logging) {
+					console.log('PROTOTYPE VIEW: ', page.view);
+				}
+
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
-					pageContent = pageMatter.content;
+				pageContent = pageMatter.content;
 
 				// template using Handlebars
-
-				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
-					context = buildContext(pageMatter.data, page.hash),
-					template = Handlebars.compile(source);
+				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout], {layoutClass: 'prototype-layout'}),
+				context = buildContext(pageMatter.data, page.hash),
+				template = Handlebars.compile(source);
 
 				var filename = page.filename || page.view;
 
@@ -720,9 +727,9 @@ var assemblePrototypes = function () {
  * Module exports
  * @return {Object} Promise
  */
-module.exports = function (options) {
+ module.exports = function (options) {
 
-	try {
+ 	try {
 
 		// setup assembly
 		setup(options);
