@@ -707,7 +707,9 @@ var assemblePrototypes = function () {
 					context = buildContext(pageMatter.data, page.hash),
 					template = Handlebars.compile(source);
 
-				fs.writeFileSync(flowdir + '/' + page.view + '.html', template(context));
+				var filename = page.filename || page.view;
+
+				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context));
 			});
 		});
 	});
