@@ -580,46 +580,6 @@ var yaml = require('js-yaml');
 
 	});
 
-	Handlebars.registerHelper('product', function(key, options){
-		var product = _.find(assembly.data.products, function(product){
-			return product.product_number == options.data.root.product_number;
-		}) || assembly.data.products[0];
-		return product[key];
-	});
-
-	Handlebars.registerHelper('subtotal', function(bag, options){
-		if (!bag.items || !bag.items.length) {
-			return '0';
-		}
-		var symbol = bag.items[0].price.slice(0,1);
-		var sum = _.sum(bag.items, function(item) {
-  				return parseFloat(item.price.substr(1), 10);
-			});
-		return symbol + sum;
-	});
-
-	Handlebars.registerHelper('tax', function(bag, options){
-		if (!bag.items || !bag.items.length) {
-			return '';
-		}
-		var symbol = bag.items[0].price.slice(0,1);
-		var sum = _.sum(bag.items, function(item) {
-  				return parseFloat(item.price.substr(1), 10);
-			});
-		return symbol + (sum * 0.22).toFixed(2);
-	});
-
-	Handlebars.registerHelper('ordertotal', function(bag, options){
-		if (!bag.items || !bag.items.length) {
-			return '';
-		}
-		var symbol = bag.items[0].price.slice(0,1);
-		var sum = _.sum(bag.items, function(item) {
-  				return parseFloat(item.price.substr(1), 10);
-			});
-		return symbol + (sum * 1.22).toFixed(2);
-	});
-
 };
 
 
