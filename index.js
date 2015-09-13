@@ -683,6 +683,10 @@ var assemblePrototypes = function () {
 		mkdirp.sync(langdir);
 		flowFiles.forEach(function(flowFile){
 
+			if (flowFile === '.DS_Store') {
+				return;
+			}
+
 			var flow = assembly.data[flowFile.split('.')[0]];
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
