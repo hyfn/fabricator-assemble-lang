@@ -702,14 +702,19 @@ var assemblePrototypes = function () {
         console.log('FLOW: ', flow.name);
       }
 
-      flow.pages.forEach(function(page) {
+      flow.pages.forEach(function(page, index) {
+      	if (index == 0) {
+      		indexPage += '<ul>';
+      	};
         var sourceFile = 'src/views/pages/' + page.view + '.html';
         var view = fs.readFileSync(sourceFile, 'utf-8');
         if (options.logging) {
           console.log('PROTOTYPE VIEW: ', page.view);
         }
-        indexPage += 'View:' + '<a href="/flows/' + lang + '/' + flow.name + '/' + page.view + '.html">' + page.view + '</a><br />';
-
+        indexPage += '' + '<li><a href="/flows/' + lang + '/' + flow.name + '/' + page.view + '.html">' + page.view + '</a></li>';
+        if (index == (flow.pages.length - 1)) {
+      		indexPage += '</ul>';
+        };
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
 				pageContent = pageMatter.content;
