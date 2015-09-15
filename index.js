@@ -725,7 +725,7 @@ var assemblePrototypes = function () {
 
 				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context));
 
-				indexPage += '' + '<li><a href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
+				indexPage += '' + '<li><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
         if (index == (flow.pages.length - 1)) {
       		indexPage += '</ol>';
         };
