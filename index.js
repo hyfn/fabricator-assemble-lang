@@ -694,20 +694,21 @@ var assemblePrototypes = function () {
 			var flow = assembly.data[flowFile.split('.')[0]];
 			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
 
-			indexPage += '<a href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a><br>';
-			flowdir = langdir + '/' + flow.name;
-			mkdirp.sync(flowdir);
+      indexPage += '<h3><a href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
+      flowdir = langdir + '/' + flow.name;
+      mkdirp.sync(flowdir);
 
-			if (options.logging) {
-				console.log('FLOW: ', flow.name);
-			}
+      if (options.logging) {
+        console.log('FLOW: ', flow.name);
+      }
 
-			flow.pages.forEach(function(page){
-				var sourceFile = 'src/views/pages/' + page.view + '.html';
-				var view = fs.readFileSync(sourceFile, 'utf-8');
-				if (options.logging) {
-					console.log('PROTOTYPE VIEW: ', page.view);
-				}
+      flow.pages.forEach(function(page) {
+        var sourceFile = 'src/views/pages/' + page.view + '.html';
+        var view = fs.readFileSync(sourceFile, 'utf-8');
+        if (options.logging) {
+          console.log('PROTOTYPE VIEW: ', page.view);
+        }
+        indexPage += 'View:' + '<a href="/flows/' + lang + '/' + flow.name + '/' + page.view + '.html">' + page.view + '</a><br />';
 
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
