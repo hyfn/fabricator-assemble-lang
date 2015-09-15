@@ -694,7 +694,7 @@ var assemblePrototypes = function () {
 			var flow = assembly.data[flowFile.split('.')[0]];
 			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
 
-      indexPage += '<h3><a href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
+      indexPage += '<h3><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
       flowdir = langdir + '/' + flow.name;
       mkdirp.sync(flowdir);
 
