@@ -662,9 +662,11 @@ var yaml = require('js-yaml');
 var assemblePrototypes = function () {
 
 	// create output directory if it doesn't already exist
-	var dir = options.dest + '/flows';
-	mkdirp.sync(dir);
+	var flowDir = options.dest + '/flows';
+	mkdirp.sync(flowDir);
 	var flowFiles = fs.readdirSync('src/data/flows', { nodir: true });
+
+	var indexPage = '';
 
 	if (options.logging) {
 		var names = [];
@@ -676,7 +678,9 @@ var assemblePrototypes = function () {
 	}
 
 	options.langs.forEach(function(lang){
-		langdir = dir + '/' + lang;
+		langdir = flowDir + '/' + lang;
+
+		indexPage += '<section class="container"><h2>' + lang + '</h2>';
 
 		parseData(lang);
 
@@ -688,6 +692,9 @@ var assemblePrototypes = function () {
 			}
 
 			var flow = assembly.data[flowFile.split('.')[0]];
+			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
+
+			indexPage += '<a href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a><br>';
 			flowdir = langdir + '/' + flow.name;
 			mkdirp.sync(flowdir);
 
@@ -716,7 +723,11 @@ var assemblePrototypes = function () {
 				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context));
 			});
 		});
+
+		indexPage += '</section>';
 	});
+
+	fs.writeFileSync(flowDir + '/index.html', wrapPage(indexPage, assembly.layouts.flows));
 };
 
 
