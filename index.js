@@ -711,10 +711,7 @@ var assemblePrototypes = function () {
         if (options.logging) {
           console.log('PROTOTYPE VIEW: ', page.view);
         }
-        indexPage += '' + '<li><a href="/flows/' + lang + '/' + flow.name + '/' + page.view + '.html">' + page.view + '</a></li>';
-        if (index == (flow.pages.length - 1)) {
-      		indexPage += '</ol>';
-        };
+
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile),
 				pageContent = pageMatter.content;
@@ -727,6 +724,11 @@ var assemblePrototypes = function () {
 				var filename = page.filename || page.view;
 
 				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context));
+
+				indexPage += '' + '<li><a href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
+        if (index == (flow.pages.length - 1)) {
+      		indexPage += '</ol>';
+        };
 			});
 		});
 
