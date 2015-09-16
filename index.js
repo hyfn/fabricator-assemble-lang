@@ -329,13 +329,15 @@ var yaml = require('js-yaml');
 			assembly.materials[collection].items[key] = {
 				name: toTitleCase(id),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : '',
-				data: localData
+				data: localData,
+				content: content
 			};
 		} else {
 			assembly.materials[parent].items[collection].items[key] = {
 				name: toTitleCase(id.split('.')[1]),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : '',
-				data: localData
+				data: localData,
+				content: content
 			};
 		}
 
@@ -718,11 +720,18 @@ var assemblePrototypes = function () {
 				var context = buildContext(pageMatter.data, page.hash);
 
 				context.prototype = true;
+				context.viewType = page.view;
 
 				var template = Handlebars.compile(source);
 				var filename = page.filename || page.view;
+				var content = template(context);
 
-				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context) + '<script>window.data = ' + JSON.stringify(context) + '</script>');
+				content = content.replace(
+					'<!-- toolkit scripts -->',
+					'<!-- toolkit scripts -->' + '\n<script>window.data = ' + JSON.stringify(context) + '</script>'
+				);
+
+				fs.writeFileSync(flowdir + '/' + filename + '.html', content);
 
 				indexPage += '' + '<li><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
         if (index == (flow.pages.length - 1)) {
