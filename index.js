@@ -257,10 +257,7 @@ var yaml = require('js-yaml');
  * @param  {Object} options
  * @return {String}
  */
- var wrapPage = function (page, layout, options) {
- 	if (options && options.layoutClass) {
- 		var layout = layout.replace('<html>','<html class="' + options.layoutClass + '">');
- 	}
+ var wrapPage = function (page, layout) {
  	return layout.replace(/\{\%\s?body\s?\%\}/, page);
  };
 
@@ -717,13 +714,15 @@ var assemblePrototypes = function () {
 				pageContent = pageMatter.content;
 
 				// template using Handlebars
-				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout], {layoutClass: 'prototype-layout'}),
-				context = buildContext(pageMatter.data, page.hash),
-				template = Handlebars.compile(source);
+				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]);
+				var context = buildContext(pageMatter.data, page.hash);
 
+				context.prototype = true;
+
+				var template = Handlebars.compile(source);
 				var filename = page.filename || page.view;
 
-				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context));
+				fs.writeFileSync(flowdir + '/' + filename + '.html', template(context) + '<script>window.data = ' + JSON.stringify(context) + '</script>');
 
 				indexPage += '' + '<li><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
         if (index == (flow.pages.length - 1)) {
