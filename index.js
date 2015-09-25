@@ -446,14 +446,14 @@ var yaml = require('js-yaml');
  */
  var parseData = function (lang) {
 
- 	lang = lang || 'en';
+ 	lang = lang || 'us';
 
  	var setLang = function(value, key) {
- 		if (_.isObject(value) && (value.en || value[lang])) {
+ 		if (_.isObject(value) && (value.us || value[lang])) {
  			if (value[lang]) {
  				this[key] = value[lang];
  			} else {
- 				this[key] = value.en;
+ 				this[key] = value.us;
  			}
  		} else if (_.isArray(value) || _.isObject(value)) {
  			_.forEach(value, setLang, value);
