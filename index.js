@@ -444,9 +444,11 @@ var yaml = require('js-yaml');
 /**
  * Parse data files and save JSON
  */
- var parseData = function (lang) {
+ var parseData = function (lang, isPrototype) {
 
  	lang = lang || 'us';
+
+ 	var re = /\/assets/;
 
  	var setLang = function(value, key) {
  		if (_.isObject(value) && (value.us || value[lang])) {
@@ -457,6 +459,8 @@ var yaml = require('js-yaml');
  			}
  		} else if (_.isArray(value) || _.isObject(value)) {
  			_.forEach(value, setLang, value);
+ 		} else if (typeof value === 'string' && isPrototype) {
+ 			this[key] = value.replace(re, '../../../assets');
  		}
  	}
 
@@ -681,7 +685,7 @@ var assemblePrototypes = function () {
 
 		indexPage += '<section class="container"><h2>' + lang + '</h2>';
 
-		parseData(lang);
+		parseData(lang, true);
 
 		mkdirp.sync(langdir);
 		flowFiles.forEach(function(flowFile){
@@ -693,7 +697,7 @@ var assemblePrototypes = function () {
 			var flow = assembly.data[flowFile.split('.')[0]];
 			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
 
-      indexPage += '<h3><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
+      indexPage += '<h3><a target="_blank" href="./' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
       flowdir = langdir + '/' + flow.name;
       mkdirp.sync(flowdir);
 
@@ -712,8 +716,10 @@ var assemblePrototypes = function () {
         }
 
 				// get page gray matter and content
-				var pageMatter = getMatter(sourceFile),
+				var pageMatter = getMatter(sourceFile);
 				pageContent = pageMatter.content;
+
+				pageMatter.data.baseurl = '../../..';
 
 				// template using Handlebars
 				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]);
@@ -733,7 +739,7 @@ var assemblePrototypes = function () {
 
 				fs.writeFileSync(flowdir + '/' + filename + '.html', content);
 
-				indexPage += '' + '<li><a target="_blank" href="/flows/' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
+				indexPage += '' + '<li><a target="_blank" href="./' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
         if (index == (flow.pages.length - 1)) {
       		indexPage += '</ol>';
         };
