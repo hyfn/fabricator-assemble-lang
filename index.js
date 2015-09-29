@@ -259,6 +259,7 @@ var wrapPage = function(page, layout) {
 
 var createLangParser = function(lang, isPrototype) {
 	var re = /\/assets/;
+	lang = lang || 'us';
 
 	return function parseLang(value, key) {
 		if (_.isObject(value) && (value.us || value[lang])) {
@@ -278,7 +279,9 @@ var createLangParser = function(lang, isPrototype) {
 /**
  * Parse each material - collect data, create partial
  */
-var parseMaterials = function() {
+var parseMaterials = function(lang, isPrototype) {
+
+	var parseLang = createLangParser(lang, isPrototype);
 
 	// reset object
 	assembly.materials = {};
@@ -333,6 +336,7 @@ var parseMaterials = function() {
 
 		// get material front-matter, omit `notes`
 		var localData = _.omit(fileMatter.data, 'notes');
+		parseLang(localData);
 
 		// trim whitespace from material content
 		var content = fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, '');
@@ -457,8 +461,6 @@ var parseLayoutIncludes = function() {
  * Parse data files and save JSON
  */
 var parseData = function(lang, isPrototype) {
-
-	lang = lang || 'us';
 
 	var parseLang = createLangParser(lang, isPrototype);
 
@@ -685,6 +687,7 @@ var assemblePrototypes = function() {
 		indexPage += '<section class="container"><h2>' + lang + '</h2>';
 
 		parseData(lang, true);
+		parseMaterials(lang, true);
 
 		mkdirp.sync(langdir);
 		flowFiles.forEach(function(flowFile) {
