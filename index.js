@@ -354,7 +354,7 @@ var yaml = require('js-yaml');
 				// {{field}} => {{material-name.field}}
 				var regex = new RegExp('(\\{\\{[#\/]?)(\\s?' + key + '+?\\s?)(\\}\\})', 'g');
 				content = content.replace(regex, function (match, p1, p2, p3) {
-					return p1 + id.replace(/\./g, '-') + '.' + p2.replace(/\s/g, '') + p3;
+					return p1 + '@root.' + id.replace(/\./g, '-') + '.' + p2.replace(/\s/g, '') + p3;
 				});
 			});
 		}
