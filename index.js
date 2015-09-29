@@ -257,6 +257,24 @@ var wrapPage = function(page, layout) {
 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
 };
 
+var createLangParser = function(lang, isPrototype) {
+	var re = /\/assets/;
+
+	return function parseLang(value, key) {
+		if (_.isObject(value) && (value.us || value[lang])) {
+			if (value[lang]) {
+				this[key] = value[lang];
+			} else {
+				this[key] = value.us;
+			}
+		} else if (_.isArray(value) || _.isObject(value)) {
+			_.forEach(value, parseLang, value);
+		} else if (typeof value === 'string' && isPrototype) {
+			this[key] = value.replace(re, '../../../assets');
+		}
+	};
+};
+
 /**
  * Parse each material - collect data, create partial
  */
@@ -442,21 +460,7 @@ var parseData = function(lang, isPrototype) {
 
 	lang = lang || 'us';
 
-	var re = /\/assets/;
-
-	function setLang(value, key) {
-		if (_.isObject(value) && (value.us || value[lang])) {
-			if (value[lang]) {
-				this[key] = value[lang];
-			} else {
-				this[key] = value.us;
-			}
-		} else if (_.isArray(value) || _.isObject(value)) {
-			_.forEach(value, setLang, value);
-		} else if (typeof value === 'string' && isPrototype) {
-			this[key] = value.replace(re, '../../../assets');
-		}
-	}
+	var parseLang = createLangParser(lang, isPrototype);
 
 	// reset
 	assembly.data = {};
@@ -470,7 +474,7 @@ var parseData = function(lang, isPrototype) {
 	files.forEach(function(file) {
 		var id = getName(file);
 		var content = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
-		setLang(content);
+		parseLang(content);
 		assembly.data[id] = content;
 	});
 };
