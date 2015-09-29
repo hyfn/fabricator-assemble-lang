@@ -1,5 +1,7 @@
 /*eslint-disable */
 
+"use strict";
+
 // modules
 var _ = require('lodash');
 var beautifyHtml = require('js-beautify').html;
@@ -9,149 +11,148 @@ var globby = require('globby');
 var Handlebars = require('handlebars');
 var inflect = require('i')();
 var matter = require('gray-matter');
-var md = require('markdown-it')({ html: true, linkify: true });
+var md = require('markdown-it')({
+	html: true,
+	linkify: true
+});
 var mkdirp = require('mkdirp');
 var path = require('path');
 var sortObj = require('sort-object');
 var yaml = require('js-yaml');
 
-
 /**
  * Default options
  * @type {Object}
  */
- var defaults = {
+var defaults = {
 	/**
 	 * ID (filename) of default layout
 	 * @type {String}
 	 */
-	 layout: 'default',
+	layout: 'default',
 
 	/**
 	 * Layout templates
 	 * @type {(String|Array)}
 	 */
-	 layouts: ['src/views/layouts/*'],
+	layouts: ['src/views/layouts/*'],
 
 	/**
 	 * Layout includes (partials)
 	 * @type {String}
 	 */
-	 layoutIncludes: ['src/views/layouts/includes/*'],
+	layoutIncludes: ['src/views/layouts/includes/*'],
 
 	/**
 	 * Pages to be inserted into a layout
 	 * @type {(String|Array)}
 	 */
-	 views: ['src/views/**/*', '!src/views/+(layouts)/**'],
+	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
 
 	/**
 	 * Materials - snippets turned into partials
 	 * @type {(String|Array)}
 	 */
-	 materials: ['src/materials/**/*'],
+	materials: ['src/materials/**/*'],
 
 	/**
 	 * JSON or YAML data models that are piped into views
 	 * @type {(String|Array)}
 	 */
-	 data: ['src/data/**/*.{json,yml}'],
+	data: ['src/data/**/*.{json,yml}'],
 
 	/**
 	 * Markdown files containing toolkit-wide documentation
 	 * @type {(String|Array)}
 	 */
-	 docs: ['src/docs/**/*.md'],
+	docs: ['src/docs/**/*.md'],
 
 	/**
 	 * Keywords used to access items in views
 	 * @type {Object}
 	 */
-	 keys: {
-	 	materials: 'materials',
-	 	views: 'views',
-	 	docs: 'docs'
-	 },
+	keys: {
+		materials: 'materials',
+		views: 'views',
+		docs: 'docs'
+	},
 
 	/**
 	 * Location to write files
 	 * @type {String}
 	 */
-	 dest: 'dist',
+	dest: 'dist',
 
 	/**
 	 * beautifier options
 	 * @type {Object}
 	 */
-	 beautifier: {
-	 	indent_size: 1,
-	 	indent_char: '	',
-	 	indent_with_tabs: true
-	 },
+	beautifier: {
+		indent_size: 1,
+		indent_char: '	',
+		indent_with_tabs: true
+	},
 
 	/**
 	 * Function to call when an error occurs
 	 * @type {Function}
 	 */
-	 onError: null,
+	onError: null,
 
 	/**
 	 * Whether or not to log errors to console
 	 * @type {Boolean}
 	 */
-	 logErrors: false
-	};
-
+	logErrors: false
+};
 
 /**
  * Merged defaults and user options
  * @type {Object}
  */
- var options = {};
-
+var options = {};
 
 /**
  * Assembly data storage
  * @type {Object}
  */
- var assembly = {
+var assembly = {
 	/**
 	 * Contents of each layout file
 	 * @type {Object}
 	 */
-	 layouts: {},
+	layouts: {},
 
 	/**
 	 * Parsed JSON data from each data file
 	 * @type {Object}
 	 */
-	 data: {},
+	data: {},
 
 	/**
 	 * Meta data for materials, grouped by "collection" (sub-directory); contains name and sub-items
 	 * @type {Object}
 	 */
-	 materials: {},
+	materials: {},
 
 	/**
 	 * Each material's front-matter data
 	 * @type {Object}
 	 */
-	 materialData: {},
+	materialData: {},
 
 	/**
 	 * Meta data for user-created views (views in views/{subdir})
 	 * @type {Object}
 	 */
-	 views: {},
+	views: {},
 
 	/**
 	 * Meta data (name, sub-items) for doc file
 	 * @type {Object}
 	 */
-	 docs: {}
-	};
-
+	docs: {}
+};
 
 /**
  * Get the name of a file (minus extension) from a path
@@ -161,29 +162,27 @@ var yaml = require('js-yaml');
  * './src/materials/structures/02-bar.html' -> 'bar'
  * @return {String}
  */
- var getName = function (filePath, preserveNumbers) {
- 	var name = path.basename(filePath, path.extname(filePath));
- 	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
- };
-
+var getName = function(filePath, preserveNumbers) {
+	var name = path.basename(filePath, path.extname(filePath));
+	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
+};
 
 /**
  * Attempt to read front matter, handle errors
  * @param  {String} file Path to file
  * @return {Object}
  */
- var getMatter = function (file) {
- 	return matter.read(file, {
- 		parser: require('js-yaml').safeLoad
- 	});
- };
-
+var getMatter = function(file) {
+	return matter.read(file, {
+		parser: require('js-yaml').safeLoad
+	});
+};
 
 /**
  * Handle errors
  * @param  {Object} e Error object
  */
- var handleError = function (e) {
+var handleError = function(e) {
 
 	// default to exiting process on error
 	var exit = true;
@@ -215,13 +214,12 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Build the template context by merging context-specific data with assembly data
  * @param  {Object} data
  * @return {Object}
  */
- var buildContext = function (data, hash) {
+var buildContext = function(data, hash) {
 
 	// set keys to whatever is defined
 	var materials = {};
@@ -237,18 +235,16 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Convert a file name to title case
  * @param  {String} str
  * @return {String}
  */
- var toTitleCase = function(str) {
- 	return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
- 		return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
- 	});
- };
-
+var toTitleCase = function(str) {
+	return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
+		return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+	});
+};
 
 /**
  * Insert the page into a layout
@@ -257,31 +253,32 @@ var yaml = require('js-yaml');
  * @param  {Object} options
  * @return {String}
  */
- var wrapPage = function (page, layout) {
- 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
- };
-
+var wrapPage = function(page, layout) {
+	return layout.replace(/\{\%\s?body\s?\%\}/, page);
+};
 
 /**
  * Parse each material - collect data, create partial
  */
- var parseMaterials = function () {
+var parseMaterials = function() {
 
 	// reset object
 	assembly.materials = {};
 
 	// get files and dirs
-	var files = globby.sync(options.materials, { nodir: true, nosort: true });
+	var files = globby.sync(options.materials, {
+		nodir: true,
+		nosort: true
+	});
 
 	// get all directories
 	// do a new glob; trailing slash matches only dirs
-	var dirs = globby.sync(options.materials + '/').map(function (dir) {
+	var dirs = globby.sync(options.materials + '/').map(function(dir) {
 		return path.normalize(dir).split(path.sep).slice(-2, -1)[0];
 	});
 
-
 	// stub out an object for each collection and subCollection
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 
 		var parent = getName(path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0], true);
 		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop(), true);
@@ -305,9 +302,8 @@ var yaml = require('js-yaml');
 
 	});
 
-
 	// iterate over each file (material)
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 
 		// get info
 		var fileMatter = getMatter(file);
@@ -322,7 +318,6 @@ var yaml = require('js-yaml');
 
 		// trim whitespace from material content
 		var content = fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, '');
-
 
 		// capture meta data for the material
 		if (!isSubCollection) {
@@ -341,19 +336,17 @@ var yaml = require('js-yaml');
 			};
 		}
 
-
 		// store material-name-spaced local data in template context
 		assembly.materialData[id.replace(/\./g, '-')] = localData;
-
 
 		// replace local fields on the fly with name-spaced keys
 		// this allows partials to use local front-matter data
 		// only affects the compilation environment
 		if (!_.isEmpty(localData)) {
-			_.forEach(localData, function (val, key) {
+			_.forEach(localData, function(val, key) {
 				// {{field}} => {{material-name.field}}
 				var regex = new RegExp('(\\{\\{[#\/]?)(\\s?' + key + '+?\\s?)(\\}\\})', 'g');
-				content = content.replace(regex, function (match, p1, p2, p3) {
+				content = content.replace(regex, function(match, p1, p2, p3) {
 					return p1 + '@root.' + id.replace(/\./g, '-') + '.' + p2.replace(/\s/g, '') + p3;
 				});
 			});
@@ -364,7 +357,6 @@ var yaml = require('js-yaml');
 
 	});
 
-
 	// sort materials object alphabetically
 	assembly.materials = sortObj(assembly.materials, 'order');
 
@@ -374,20 +366,21 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Parse markdown files as "docs"
  */
- var parseDocs = function () {
+var parseDocs = function() {
 
 	// reset
 	assembly.docs = {};
 
 	// get files
-	var files = globby.sync(options.docs, { nodir: true });
+	var files = globby.sync(options.docs, {
+		nodir: true
+	});
 
 	// iterate over each file (material)
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 
 		var id = getName(file);
 
@@ -401,20 +394,21 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Parse layout files
  */
- var parseLayouts = function () {
+var parseLayouts = function() {
 
 	// reset
 	assembly.layouts = {};
 
 	// get files
-	var files = globby.sync(options.layouts, { nodir: true });
+	var files = globby.sync(options.layouts, {
+		nodir: true
+	});
 
 	// save content of each file
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 		var id = getName(file);
 		var content = fs.readFileSync(file, 'utf-8');
 		assembly.layouts[id] = content;
@@ -422,17 +416,18 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Register layout includes has Handlebars partials
  */
- var parseLayoutIncludes = function () {
+var parseLayoutIncludes = function() {
 
 	// get files
-	var files = globby.sync(options.layoutIncludes, { nodir: true });
+	var files = globby.sync(options.layoutIncludes, {
+		nodir: true
+	});
 
 	// save content of each file
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 		var id = getName(file);
 		var content = fs.readFileSync(file, 'utf-8');
 		Handlebars.registerPartial(id, content);
@@ -440,38 +435,39 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Parse data files and save JSON
  */
- var parseData = function (lang, isPrototype) {
+var parseData = function(lang, isPrototype) {
 
- 	lang = lang || 'us';
+	lang = lang || 'us';
 
- 	var re = /\/assets/;
+	var re = /\/assets/;
 
- 	var setLang = function(value, key) {
- 		if (_.isObject(value) && (value.us || value[lang])) {
- 			if (value[lang]) {
- 				this[key] = value[lang];
- 			} else {
- 				this[key] = value.us;
- 			}
- 		} else if (_.isArray(value) || _.isObject(value)) {
- 			_.forEach(value, setLang, value);
- 		} else if (typeof value === 'string' && isPrototype) {
- 			this[key] = value.replace(re, '../../../assets');
- 		}
- 	}
+	function setLang(value, key) {
+		if (_.isObject(value) && (value.us || value[lang])) {
+			if (value[lang]) {
+				this[key] = value[lang];
+			} else {
+				this[key] = value.us;
+			}
+		} else if (_.isArray(value) || _.isObject(value)) {
+			_.forEach(value, setLang, value);
+		} else if (typeof value === 'string' && isPrototype) {
+			this[key] = value.replace(re, '../../../assets');
+		}
+	}
 
 	// reset
 	assembly.data = {};
 
 	// get files
-	var files = globby.sync(options.data, { nodir: true });
+	var files = globby.sync(options.data, {
+		nodir: true
+	});
 
 	// save content of each file
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 		var id = getName(file);
 		var content = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
 		setLang(content);
@@ -482,24 +478,26 @@ var yaml = require('js-yaml');
 /**
  * Get meta data for views
  */
- var parseViews = function () {
+var parseViews = function() {
 
 	// reset
 	assembly.views = {};
 
 	// get files
-	var files = globby.sync(options.views, { nodir: true });
+	var files = globby.sync(options.views, {
+		nodir: true
+	});
 
-	files.forEach(function (file) {
+	files.forEach(function(file) {
 
 		var id = getName(file, true);
 
 		// determine if view is part of a collection (subdir)
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-		collection = (dirname !== options.keys.views) ? dirname : '';
+			collection = (dirname !== options.keys.views) ? dirname : '';
 
 		var fileMatter = getMatter(file),
-		fileData = _.omit(fileMatter.data, 'notes');
+			fileData = _.omit(fileMatter.data, 'notes');
 
 		// if this file is part of a collection
 		if (collection) {
@@ -522,11 +520,10 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Register new Handlebars helpers
  */
- var registerHelpers = function () {
+var registerHelpers = function() {
 
 	// get helper files
 	var resolveHelper = path.join.bind(null, __dirname, 'helpers');
@@ -534,12 +531,11 @@ var yaml = require('js-yaml');
 	var userHelpers = options.helpers;
 
 	// register local helpers
-	localHelpers.map(function (helper) {
+	localHelpers.map(function(helper) {
 		var key = helper.match(/(^\w+?-)(.+)(\.\w+)/)[2];
 		var path = resolveHelper(helper);
 		Handlebars.registerHelper(key, require(path));
 	});
-
 
 	// register user helpers
 	for (var helper in userHelpers) {
@@ -547,7 +543,6 @@ var yaml = require('js-yaml');
 			Handlebars.registerHelper(helper, userHelpers[helper]);
 		}
 	}
-
 
 	/**
 	 * Helpers that require local functions like `buildContext()`
@@ -561,7 +556,7 @@ var yaml = require('js-yaml');
 	 * @example
 	 * {{material name context}}
 	 */
-	 Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, opts) {
+	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function(name, context, opts) {
 
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
@@ -569,7 +564,7 @@ var yaml = require('js-yaml');
 
 		// attempt to find pre-compiled partial
 		var template = Handlebars.partials[key],
-		fn;
+			fn;
 
 		// compile partial if not already compiled
 		if (!_.isFunction(template)) {
@@ -585,12 +580,11 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Setup the assembly
  * @param  {Objet} options  User options
  */
- var setup = function (userOptions) {
+var setup = function(userOptions) {
 
 	// merge user options with defaults
 	options = _.merge({}, defaults, userOptions);
@@ -606,31 +600,30 @@ var yaml = require('js-yaml');
 
 };
 
-
 /**
  * Assemble views using materials, data, and docs
  */
- var assemble = function () {
+var assemble = function() {
 
 	// get files
-	var files = globby.sync(options.views, { nodir: true });
+	var files = globby.sync(options.views, {
+		nodir: true
+	});
 
 	// create output directory if it doesn't already exist
 	mkdirp.sync(options.dest);
 
 	// iterate over each view
-	files.forEach(function (file) {
-
-		var id = getName(file);
+	files.forEach(function(file) {
 
 		// build filePath
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-		collection = (dirname !== options.keys.views) ? dirname : '',
-		filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
+			collection = (dirname !== options.keys.views) ? dirname : '',
+			filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
 
 		// get page gray matter and content
 		var pageMatter = getMatter(file),
-		pageContent = pageMatter.content;
+			pageContent = pageMatter.content;
 
 		if (collection) {
 			pageMatter.data.baseurl = '..';
@@ -638,8 +631,8 @@ var yaml = require('js-yaml');
 
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
-		context = buildContext(pageMatter.data),
-		template = Handlebars.compile(source);
+			context = buildContext(pageMatter.data),
+			template = Handlebars.compile(source);
 
 		// redefine file path if dest front-matter variable is defined
 		if (pageMatter.data.dest) {
@@ -662,33 +655,35 @@ var yaml = require('js-yaml');
 	});
 };
 
-var assemblePrototypes = function () {
+var assemblePrototypes = function() {
 
 	// create output directory if it doesn't already exist
 	var flowDir = options.dest + '/flows';
 	mkdirp.sync(flowDir);
-	var flowFiles = fs.readdirSync('src/data/flows', { nodir: true });
+	var flowFiles = fs.readdirSync('src/data/flows', {
+		nodir: true
+	});
 
 	var indexPage = '';
 
 	if (options.logging) {
 		var names = [];
 		_.each(flowFiles, function(file) {
-			names.push(file.split('.')[0].replace('_',''));
+			names.push(file.split('.')[0].replace('_', ''));
 		});
 		console.log('CREATING PROTOTYPES:', names);
 		console.log('LANGUAGES:', options.langs);
 	}
 
-	options.langs.forEach(function(lang){
-		langdir = flowDir + '/' + lang;
+	options.langs.forEach(function(lang) {
+		var langdir = flowDir + '/' + lang;
 
 		indexPage += '<section class="container"><h2>' + lang + '</h2>';
 
 		parseData(lang, true);
 
 		mkdirp.sync(langdir);
-		flowFiles.forEach(function(flowFile){
+		flowFiles.forEach(function(flowFile) {
 
 			if (flowFile === '.DS_Store') {
 				return;
@@ -697,27 +692,28 @@ var assemblePrototypes = function () {
 			var flow = assembly.data[flowFile.split('.')[0]];
 			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
 
-      indexPage += '<h3><a target="_blank" href="./' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
-      flowdir = langdir + '/' + flow.name;
-      mkdirp.sync(flowdir);
+			indexPage += '<h3><a target="_blank" href="./' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
+			var flowdir = langdir + '/' + flow.name;
+			mkdirp.sync(flowdir);
 
-      if (options.logging) {
-        console.log('FLOW: ', flow.name);
-      }
+			if (options.logging) {
+				console.log('FLOW: ', flow.name);
+			}
 
-      flow.pages.forEach(function(page, index) {
-      	if (index == 0) {
-      		indexPage += '<ol>';
-      	};
-        var sourceFile = 'src/views/pages/' + page.view + '.html';
-        var view = fs.readFileSync(sourceFile, 'utf-8');
-        if (options.logging) {
-          console.log('PROTOTYPE VIEW: ', page.view);
-        }
+			flow.pages.forEach(function(page, index) {
+				if (index === 0) {
+					indexPage += '<ol>';
+				}
+
+				var sourceFile = 'src/views/pages/' + page.view + '.html';
+
+				if (options.logging) {
+					console.log('PROTOTYPE VIEW: ', page.view);
+				}
 
 				// get page gray matter and content
 				var pageMatter = getMatter(sourceFile);
-				pageContent = pageMatter.content;
+				var pageContent = pageMatter.content;
 
 				pageMatter.data.baseurl = '../../..';
 
@@ -740,9 +736,9 @@ var assemblePrototypes = function () {
 				fs.writeFileSync(flowdir + '/' + filename + '.html', content);
 
 				indexPage += '' + '<li><a target="_blank" href="./' + lang + '/' + flow.name + '/' + filename + '.html">' + filename + '</a></li>';
-        if (index == (flow.pages.length - 1)) {
-      		indexPage += '</ol>';
-        };
+				if (index === (flow.pages.length - 1)) {
+					indexPage += '</ol>';
+				}
 			});
 		});
 
@@ -752,14 +748,13 @@ var assemblePrototypes = function () {
 	fs.writeFileSync(flowDir + '/index.html', wrapPage(indexPage, assembly.layouts.flows));
 };
 
-
 /**
  * Module exports
  * @return {Object} Promise
  */
- module.exports = function (options) {
+module.exports = function(options) {
 
- 	try {
+	try {
 
 		// setup assembly
 		setup(options);
@@ -768,7 +763,7 @@ var assemblePrototypes = function () {
 		assemble();
 		assemblePrototypes();
 
-	} catch(e) {
+	} catch (e) {
 		handleError(e);
 	}
 
