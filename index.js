@@ -611,6 +611,8 @@ var setup = function(userOptions) {
  */
 var assemble = function() {
 
+	var parseLang = createLangParser('us', false);
+
 	// get files
 	var files = globby.sync(options.views, {
 		nodir: true
@@ -634,6 +636,8 @@ var assemble = function() {
 		if (collection) {
 			pageMatter.data.baseurl = '..';
 		}
+
+		parseLang(pageMatter.data);
 
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
@@ -689,6 +693,8 @@ var assemblePrototypes = function() {
 		parseData(lang, true);
 		parseMaterials(lang, true);
 
+		var parseLang = createLangParser(lang, true);
+
 		mkdirp.sync(langdir);
 		flowFiles.forEach(function(flowFile) {
 
@@ -723,6 +729,8 @@ var assemblePrototypes = function() {
 				var pageContent = pageMatter.content;
 
 				pageMatter.data.baseurl = '../../..';
+
+				parseLang(pageMatter.data);
 
 				// template using Handlebars
 				var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]);
