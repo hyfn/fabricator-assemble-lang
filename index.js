@@ -264,6 +264,9 @@ var createLangParser = function(lang, isPrototype) {
 	return function parseLang(value, key) {
 		if (_.isObject(value) && (value.us || value[lang])) {
 			if (value[lang]) {
+				if (!this) {
+					console.error(value);
+				}
 				this[key] = value[lang];
 			} else {
 				this[key] = value.us;
@@ -370,6 +373,11 @@ var parseMaterials = function(lang, isPrototype) {
 				var regex = new RegExp('(\\{\\{[#\/]?)(\\s?' + key + '+?\\s?)(\\}\\})', 'g');
 				content = content.replace(regex, function(match, p1, p2, p3) {
 					return p1 + '@root.' + id.replace(/\./g, '-') + '.' + p2.replace(/\s/g, '') + p3;
+				});
+
+				var regex2 = new RegExp('=' + key, 'g');
+				content = content.replace(regex2, function() {
+					return '=@root.' + id.replace(/\./g, '-') + '.' + key;
 				});
 			});
 		}
