@@ -254,6 +254,7 @@ var toTitleCase = function(str) {
  * @return {String}
  */
 var wrapPage = function(page, layout) {
+	if(!layout)return "";
 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
 };
 
@@ -711,6 +712,11 @@ var assemblePrototypes = function() {
 			}
 
 			var flow = assembly.data[flowFile.split('.')[0]];
+
+			if(!flow.pages.length){
+				return;
+			}
+
 			var firstFlowPage = flow.pages[0].filename || flow.pages[0].view;
 
 			indexPage += '<h3><a target="_blank" href="./' + lang + '/' + flow.name + '/' + firstFlowPage + '.html">' + flow.name + '</a></h3>';
