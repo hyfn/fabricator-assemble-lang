@@ -676,6 +676,10 @@ var assemble = function() {
 
 var assemblePrototypes = function() {
 
+	if (!fs.existsSync('src/data/flows')) {
+		return;
+	}
+
 	// create output directory if it doesn't already exist
 	var flowDir = options.dest + '/flows';
 	mkdirp.sync(flowDir);
