@@ -683,6 +683,15 @@ var assemblePrototypes = function() {
 		nodir: true
 	});
 
+
+	if (flowFiles[0] === '.DS_Store') {
+		flowFiles.shift();
+	}
+
+	if (flowFiles.length === 0) {
+		return;
+	}
+
 	var indexPage = '';
 
 	if (options.logging) {
